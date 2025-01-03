@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { useSession, signOut } from 'next-auth/react'
+// import { useSession, signOut } from 'next-auth/react'
 
 export default function Header() {
-  const { data: session } = useSession()
+  // const { data: session } = useSession()
 
   return (
     <header className="bg-white shadow-md">
@@ -18,7 +18,7 @@ export default function Header() {
               Jobs
             </Link>
           </li>
-          {session ? (
+          {/* {session ? (
             <>
               <li>
                 {session.user.role === 'ADMIN' && (
@@ -45,7 +45,7 @@ export default function Header() {
                 Sign In
               </Link>
             </li>
-          )}
+          )} */}
         </ul>
       </nav>
     </header>
