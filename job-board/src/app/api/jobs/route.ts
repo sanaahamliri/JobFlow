@@ -1,68 +1,34 @@
-import NextAuth, { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import dbConnect from '../../../lib/dbConnect'
-import User from '../../../models/User'
-import bcrypt from "bcryptjs"
+import { NextResponse } from 'next/server';
+import dbConnect from '../../../lib/dbConnect';
+import Job from '../../../models/Job';
 
-export const authOptions: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        await dbConnect()
+export async function GET(request: Request) {
+    await dbConnect();
 
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const size = parseInt(searchParams.get('size') || '10', 10);
 
-        const user = await User.findOne({ email: credentials.email })
-
-        if (!user) {
-          return null
-        }
-
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        }
-      }
-    })
-  ],
-  session: {
-    strategy: "jwt"
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role
-        token.id = user.id
-      }
-      return token
-    },
-    async session({ session, token }) {
-      if (session?.user) {
-        session.user.role = token.role as string
-        session.user.id = token.id as string
-      }
-      return session
+    try {
+        const jobs = await Job.find()
+            .skip((page - 1) * size)
+            .limit(size);
+        const total = await Job.countDocuments();
+        return NextResponse.json({ total, jobs });
+    } catch (error) {
+        return NextResponse.json({ message: error.message }, { status: 500 });
     }
-  },
-  pages: {
-    signIn: "/auth/signin",
-  },
 }
 
-export default NextAuth(authOptions)
+export async function POST(request: Request) {
+    await dbConnect();
 
+    try {
+        const body = await request.json();
+        const job = new Job(body);
+        await job.save();
+        return NextResponse.json(job, { status: 201 });
+    } catch (error) {
+        return NextResponse.json({ message: error.message }, { status: 400 });
+    }
+}

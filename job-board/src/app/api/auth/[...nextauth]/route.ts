@@ -1,8 +1,8 @@
-import NextAuth, { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import dbConnect from '../../../../lib/dbConnect'
-import User from '../../../../models/User'
-import bcrypt from "bcryptjs"
+import NextAuth, { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import dbConnect from "../../../../lib/dbConnect";
+import User from "../../../../models/User";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -10,25 +10,28 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        await dbConnect()
+        await dbConnect();
 
         if (!credentials?.email || !credentials?.password) {
-          return null
+          return null;
         }
 
-        const user = await User.findOne({ email: credentials.email })
+        const user = await User.findOne({ email: credentials.email });
 
         if (!user) {
-          return null
+          return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
         return {
@@ -36,35 +39,34 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-        }
-      }
-    })
+        };
+      },
+    }),
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: any) {
       if (user) {
-        token.role = user.role
-        token.id = user.id
+        token.role = user.role;
+        token.id = user.id;
       }
-      return token
+      return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       if (session?.user) {
-        session.user.role = token.role as string
-        session.user.id = token.id as string
+        session.user.role = token.role as string;
+        session.user.id = token.id as string;
       }
-      return session
-    }
+      return session;
+    },
   },
   pages: {
     signIn: "/auth/signin",
   },
-}
+};
 
-const handler = NextAuth(authOptions)
+const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST }
-
+export { handler as GET, handler as POST };

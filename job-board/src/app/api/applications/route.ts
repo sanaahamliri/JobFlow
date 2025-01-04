@@ -3,6 +3,7 @@ import dbConnect from '../../../lib/dbConnect'
 import User from '../../../models/User'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]/route"
+import Application from '@/src/models/Application'
 
 export async function POST(request: Request) {
   await dbConnect()

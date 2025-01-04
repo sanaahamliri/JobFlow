@@ -1,26 +1,44 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import Header from '../../components/Header'
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import Header from '../../components/Header';
 
 export default function Jobs() {
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [type, setType] = useState('')
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [type, setType] = useState('');
 
-  const fetchJobs = async () => {
-    const response = await fetch(`/api/jobs?page=${page}&search=${search}&type=${type}`)
+  const fetchJobs = async ({ queryKey }) => {
+    const [, currentPage, currentSearch, currentType] = queryKey;
+    const response = await fetch(
+      `/api/jobs?page=${currentPage}&search=${currentSearch}&type=${currentType}`
+    );
     if (!response.ok) {
-      throw new Error('Network response was not ok')
+      throw new Error('Network response was not ok');
     }
-    return response.json()
-  }
+    return response.json();
+  };
 
-  const { data, isLoading, error } = useQuery(['jobs', page, search, type], fetchJobs)
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['jobs', page, search, type],
+    queryFn: async ({ queryKey }) => {
+      const [, currentPage, currentSearch, currentType] = queryKey;
+      const response = await fetch(
+        `/api/jobs?page=${currentPage}&search=${currentSearch}&type=${currentType}`
+      );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
+    keepPreviousData: true,
+  });
+  
 
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>An error has occurred: {error.message}</div>
+  if (isLoading) return <div>Loading...</div>;
+  console.log(data)
+  if (error) return <div>An error has occurred: {error.message}</div>;
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -49,7 +67,8 @@ export default function Jobs() {
             </select>
           </div>
           <ul className="mt-8 space-y-4">
-            {data.jobs.map((job) => (
+          {data.length ===0}
+            {data?.jobs.map((job) => (
               <li key={job.id} className="bg-white shadow overflow-hidden sm:rounded-md">
                 <div className="px-4 py-5 sm:px-6">
                   <h3 className="text-lg leading-6 font-medium text-gray-900">{job.title}</h3>
@@ -62,14 +81,14 @@ export default function Jobs() {
           </ul>
           <div className="mt-4 flex justify-between">
             <button
-              onClick={() => setPage(page - 1)}
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
               className="bg-indigo-500 text-white px-4 py-2 rounded disabled:opacity-50"
             >
               Previous
             </button>
             <button
-              onClick={() => setPage(page + 1)}
+              onClick={() => setPage((prev) => prev + 1)}
               disabled={page === data.totalPages}
               className="bg-indigo-500 text-white px-4 py-2 rounded disabled:opacity-50"
             >
@@ -79,6 +98,5 @@ export default function Jobs() {
         </div>
       </main>
     </div>
-  )
+  );
 }
-

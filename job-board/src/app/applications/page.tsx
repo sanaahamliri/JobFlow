@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import dbConnect from '../../../lib/dbConnect'
-import Application from '../../../models/Application'
+import dbConnect from '../../lib/dbConnect'
+import Application from '../../models/Application'
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]"
+import { authOptions } from "../api/auth/[...nextauth]/route"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await dbConnect()

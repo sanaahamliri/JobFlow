@@ -2,7 +2,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import Header from '../components/Header'
-
+import '../styles/globals.css'
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
