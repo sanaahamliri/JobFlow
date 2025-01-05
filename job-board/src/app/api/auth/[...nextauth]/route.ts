@@ -4,6 +4,54 @@ import dbConnect from "../../../../lib/dbConnect";
 import User from "../../../../models/User";
 import bcrypt from "bcryptjs";
 
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Authentication operations
+ */
+
+/**
+ * @swagger
+ * /auth/signin:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Sign in user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 role:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ *       400:
+ *         description: Bad request
+ */
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({

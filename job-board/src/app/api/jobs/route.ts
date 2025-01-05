@@ -2,6 +2,99 @@ import { NextResponse } from 'next/server';
 import dbConnect from '../../../lib/dbConnect';
 import Job from '../../../models/Job';
 
+/**
+ * @swagger
+ * tags:
+ *   name: Jobs
+ *   description: Job operations
+ */
+
+/**
+ * @swagger
+ * /jobs:
+ *   get:
+ *     tags: [Jobs]
+ *     summary: Retrieve a list of jobs
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - in: query
+ *         name: size
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *     responses:
+ *       200:
+ *         description: A list of jobs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: integer
+ *                 jobs:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /jobs:
+ *   post:
+ *     tags: [Jobs]
+ *     summary: Create a new job
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: Software Engineer
+ *               description:
+ *                 type: string
+ *                 example: Responsible for developing applications.
+ *     responses:
+ *       201:
+ *         description: Job created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 job:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     title:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Server error
+ */
+
 export async function GET(request: Request) {
     await dbConnect();
 
